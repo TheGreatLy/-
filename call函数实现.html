@@ -1,0 +1,74 @@
+<!DOCTYPE HTML>
+<html>
+    <head>
+        <meta charset="UTF-8">
+        <title>Title</title>
+        <meta name="keywords" content="关键词">
+        <meta name="description" content="描述">
+        <meta name="author" content="LY">
+        <style>
+            body{font-family: "Microsoft YaHei",serif;}
+            body,dl,dd,p,h1,h2,h3,h4,h5,h6{margin:0;}
+            ol,ul,li{margin:0;padding:0;list-style:none;}
+            img{border:none;}
+        </style>
+    </head>
+    <body>
+        <div id="wrap"></div>
+        
+        <script>
+            //方法一
+            // Function.prototype.call2 = function(context, ...args) {
+            //     console.log("context=",context); //context为给call函数传的this指向
+            //     console.log("context.fn=",context.fn);
+            //     // 因为传进来的 context 有可能是 null
+            //     context = context || window;
+            //     // Function.prototype this 为当前运行的函数
+            //     // 让 fn 的上下文为 context
+            //     //this为调用该函数的函数就是test函数本身
+            //     context.fn = this;
+            //     console.log("context.fn=",context.fn);
+            //
+            //     //执行test函数
+            //     const result = context.fn(...args);
+            //
+            //     delete context.fn;
+            //
+            //     return result;
+            // };
+
+
+            //方法二
+            Function.prototype.call2 = function(context) {
+
+                //此时context为{test:22}因为与给call函数传的第一个参数对应
+                console.log("context=",context); //context为给call函数传的this指向
+                console.log(arguments);
+                var context = context || window; //因为传进来的context有可能是null
+                context.fn = this;
+
+                console.log("context.fn=",context.fn);
+                var args = [];
+                for (var i = 1; i < arguments.length; i++) {
+                    //args.push(arguments[i]);
+
+                    //通过"arguments[" + i + "]"这种方式给每一个值加上引号""然后在下面join的时候会自动把引号""去掉，防止带引号的参数成为变量然后报错。
+                    args.push("arguments[" + i + "]"); //不这么做的话 字符串的引号会被自动去掉 变成了变量 导致报错
+                }
+                console.log(args);
+                args = args.join(",");
+
+                var result = eval("context.fn(" + args + ")"); //相当于执行了context.fn(arguments[1], arguments[2]);
+
+                delete context.fn;
+                return result; //因为有可能this函数会有返回值return
+            }
+
+            function test(a, b, c) {
+                console.log(this, a, b, c);
+                return this;
+            }
+            console.log(test.call2({ test: 22 }, "ly", 2, 3));
+        </script>
+    </body>
+</html>
